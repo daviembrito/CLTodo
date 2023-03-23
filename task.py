@@ -7,4 +7,3 @@ class Task():
         self.created_date = datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
         self.done = False
         self.done_date = None
-        self.id = None
