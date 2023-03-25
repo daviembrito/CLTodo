@@ -23,6 +23,15 @@ def getNumberOfTables():
     num_tables = cursor.fetchone()[0]
     return num_tables
 
+def getAllRows(table_name:str):
+    cursor.execute(f"SELECT * FROM {table_name}")
+    rows = cursor.fetchall()
+
+    tasks = []
+    for row in rows:
+        tasks.append(Task(*row))
+    return tasks
+
 def createTable(table_name:str):
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS {table_name} (
             posicao INTEGER NOT NULL,
