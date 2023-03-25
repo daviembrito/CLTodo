@@ -1,11 +1,14 @@
 import sqlite3
 from task import Task
 
-conn = sqlite3.connect('todos.db')
+conn = sqlite3.connect("todos.db")
 cursor = conn.cursor()
 
 def getTablesNames():
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name!='sqlite_sequence';")
+    cursor.execute("""SELECT name FROM sqlite_master 
+        WHERE type = 'table' 
+        AND name != 'sqlite_sequence';""")
+    
     tables = cursor.fetchall()
     if not tables:
         return ["No list found!"]
@@ -20,22 +23,29 @@ def getNumberOfTables():
     num_tables = cursor.fetchone()[0]
     return num_tables
 
-def createTable(table_name):
+def createTable(table_name:str):
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS {table_name} (
-            id integer primary key autoincrement,
-            todo text,
-            category text,
-            date_added text,
-            date_completed text,
-            done integer);""")
+            posicao INTEGER NOT NULL,
+            todo TEXT NOT NULL,
+            category TEXT,
+            date_added TEXT PRIMARY KEY,
+            date_completed TEXT,
+            done BOOLEAN NOT NULL);""")
     
-def deleteTable(table_name):
+def deleteTable(table_name:str):
     cursor.execute(f"DROP TABLE {table_name}")
-    
-def addTaskToTable(task : Task, table_id : int):
-    pass
 
-def tableExists(table_name):
+def addTaskToTable(task:Task, table_name:str):
+    with conn:
+        cursor.execute(f"""INSERT INTO {table_name}
+            (posicao, todo, category, date_added, done) 
+            VALUES ((SELECT IFNULL(MAX(posicao), 0) + 1 FROM {table_name}), 
+            '{task.name}', 
+            '{task.category}', 
+            '{task.created_date}', 
+            FALSE);""")
+
+def tableExists(table_name:str):
     cursor.execute(f"""SELECT name FROM sqlite_master
             WHERE type='table' 
             AND name='{table_name}';""")
