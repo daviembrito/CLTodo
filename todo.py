@@ -2,7 +2,7 @@ import cmd
 from rich.table import Table
 from rich.console import Console
 from task import Task
-from database import getTablesNames, createTable, tableExists, deleteTable, addTaskToTable
+from database import getTablesNames, createTable, tableExists, deleteTable, addTaskToTable, getAllRows
 from shlex import split
 
 class TodoCLI(cmd.Cmd):
@@ -40,6 +40,10 @@ class TodoCLI(cmd.Cmd):
             print("No list selected!")
             return
         
+        todos = getAllRows(self.actual_list)
+        for todo in todos:
+            print(todo.position, todo.name)
+        
     def do_create(self, list_name):
         """Add a new TODO list"""
         list_name = list_name.split()[0]
@@ -51,8 +55,11 @@ class TodoCLI(cmd.Cmd):
         createTable(list_name)
         self.do_lists(list_name)   
 
-    def do_delete(self, list_name):
+    def do_delete(self, list_position):
         """Deletes a TODO list"""
+        if not self.hasSelectedList():
+            print("You must select a list before removing todos!")
+
         list_name = list_name.split()[0]
 
         if not tableExists(list_name):
@@ -75,13 +82,15 @@ class TodoCLI(cmd.Cmd):
         args = split(args)
         todo, category = args[0], args[1]
 
-        task = Task(todo, category)
+        task = Task.create(todo, category)
         addTaskToTable(task, self.actual_list)
 
         self.do_show(args)
 
-    def do_remove(self, arg):
+    def do_remove(self, position):
         """Removes a TODO from the list"""
+        position = split(position)[0]
+        
         pass
 
     def do_done(self, arg):
