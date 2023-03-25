@@ -1,11 +1,16 @@
 import cmd
 from rich.table import Table
+from rich.console import Console
 from task import Task
-from database import getTablesNames, createTable, tableExists, deleteTable
+from database import getTablesNames, createTable, tableExists, deleteTable, addTaskToTable
+from shlex import split
 
-class MyCLI(cmd.Cmd):
+class TodoCLI(cmd.Cmd):
     def __init__(self):
         cmd.Cmd.__init__(self)
+        self.actual_list = None
+        
+        self.console = Console()
         self.prompt = '> '
         self.doc_header = 'Comandos disponíveis:'
         self.undoc_header = 'Comandos não documentados:'
@@ -14,7 +19,6 @@ class MyCLI(cmd.Cmd):
             "q" : self.do_quit,
             "h" : self.do_help
         }
-        self.actual_list = None
 
     def do_lists(self, args):
         """Lists all available TODO lists"""
@@ -29,11 +33,13 @@ class MyCLI(cmd.Cmd):
             return 
         
         self.actual_list = list_name
-        print(f"Selected list {list_name}")
+        print(f"Selected list {list_name}!")
 
     def do_show(self, arg):
-        pass
-
+        if not self.hasSelectedList():
+            print("No list selected!")
+            return
+        
     def do_create(self, list_name):
         """Add a new TODO list"""
         list_name = list_name.split()[0]
@@ -55,11 +61,24 @@ class MyCLI(cmd.Cmd):
         
         deleteTable(list_name)
 
+        if getTablesNames()[0] == "No list found!":
+            return
+        
         self.do_lists(list_name) 
 
     def do_add(self, args):
         """Adds a TODO to the list"""
-        pass
+        if not self.hasSelectedList():
+            print("You must select a list before adding todos!")
+            return
+
+        args = split(args)
+        todo, category = args[0], args[1]
+
+        task = Task(todo, category)
+        addTaskToTable(task, self.actual_list)
+
+        self.do_show(args)
 
     def do_remove(self, arg):
         """Removes a TODO from the list"""
@@ -91,6 +110,12 @@ class MyCLI(cmd.Cmd):
             return self.aliases[cmd](arg)
         else:
             self.do_help(arg)
+
+    def hasSelectedList(self):
+        if self.actual_list:
+            return True
+        
+        return False
     
 if __name__ == '__main__':
-    MyCLI().cmdloop()
+    TodoCLI().cmdloop()
