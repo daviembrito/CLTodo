@@ -16,13 +16,6 @@ def getTablesNames():
     tables_list = [table[0] for table in tables]
     return tables_list
 
-def getNumberOfTables():
-    cursor.execute("""SELECT count(*) FROM sqlite_master 
-            WHERE type='table' 
-            AND name!='sqlite_sequence';""")
-    num_tables = cursor.fetchone()[0]
-    return num_tables
-
 def getAllRows(table_name:str):
     cursor.execute(f"SELECT * FROM {table_name}")
     rows = cursor.fetchall()
@@ -53,6 +46,18 @@ def addTaskToTable(task:Task, table_name:str):
             '{task.category}', 
             '{task.created_date}', 
             FALSE);""")
+        
+def removeTaskFromTable(task_position:int, table_name:str):
+    with conn:
+        cursor.execute(f"""DELETE FROM {table_name}
+            WHERE posicao = {task_position};""")
+
+
+def invertTaskStatus(task_position:int, table_name:str):
+    with conn:
+        cursor.execute(f"""UPDATE {table_name}
+            SET done = NOT done
+            WHERE posicao = {task_position};""")
 
 def tableExists(table_name:str):
     cursor.execute(f"""SELECT name FROM sqlite_master
