@@ -101,13 +101,23 @@ class TodoCLI(cmd.Cmd):
     def do_done(self, position):
         if not self.hasSelectedList():
             self.printSelectError()
+            return
 
         db.invertTaskStatus(position, self.selected_list)
 
         self.do_show(None)
 
-    def do_update(self, args):
-        pass
+    def do_change(self, args):
+        if not self.hasSelectedList():
+            self.printSelectError()
+            return
+
+        args = split(args)
+        old_position, new_position = args[0], args[1]
+
+        db.changeTaskPosition(old_position, new_position, self.selected_list)
+        self.do_show(None)
+
     
     def do_quit(self, arg):
         """Quit the program"""
