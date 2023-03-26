@@ -17,7 +17,7 @@ def getTablesNames():
     return tables_list
 
 def getAllRows(table_name:str):
-    cursor.execute(f"SELECT * FROM {table_name}")
+    cursor.execute(f"SELECT * FROM {table_name} ORDER BY position")
     rows = cursor.fetchall()
 
     tasks = []
@@ -56,6 +56,36 @@ def removeTaskFromTable(task_position:int, table_name:str):
             SET position = position-1 
             WHERE position > {task_position};""")
 
+def changeTaskPosition(old_position:int, new_position:int, table_name:str):
+    try:
+        conn.execute("BEGIN TRANSACTION;")
+
+        cursor.execute(f"""UPDATE {table_name}
+            SET position = 0
+            WHERE position = {old_position};""")
+        
+        if new_position > old_position:
+            cursor.execute(f"""UPDATE {table_name}
+            SET position = position - 1 
+            WHERE position > {old_position} 
+            AND position <= {new_position}
+            AND position > 0;""")
+        else:
+            cursor.execute(f"""UPDATE {table_name}
+            SET position = position + 1 
+            WHERE position >= {new_position} 
+            AND position < {old_position}
+            AND position > 0;""")
+        
+        cursor.execute(f"""UPDATE {table_name}
+            SET position = {new_position}
+            WHERE position = 0;""")
+        
+        conn.commit()
+    
+    except sqlite3.Error as error:
+        conn.rollback()
+        print("[ERRO] ", error)
 
 def invertTaskStatus(task_position:int, table_name:str):
     with conn:
