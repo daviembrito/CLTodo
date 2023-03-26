@@ -27,7 +27,7 @@ def getAllRows(table_name:str):
 
 def createTable(table_name:str):
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS {table_name} (
-            posicao INTEGER NOT NULL,
+            position INTEGER NOT NULL,
             todo TEXT NOT NULL,
             category TEXT,
             date_added TEXT PRIMARY KEY,
@@ -40,8 +40,8 @@ def deleteTable(table_name:str):
 def addTaskToTable(task:Task, table_name:str):
     with conn:
         cursor.execute(f"""INSERT INTO {table_name}
-            (posicao, todo, category, date_added, done) 
-            VALUES ((SELECT IFNULL(MAX(posicao), 0) + 1 FROM {table_name}), 
+            (position, todo, category, date_added, done) 
+            VALUES ((SELECT IFNULL(MAX(position), 0) + 1 FROM {table_name}), 
             '{task.name}', 
             '{task.category}', 
             '{task.created_date}', 
@@ -49,15 +49,19 @@ def addTaskToTable(task:Task, table_name:str):
         
 def removeTaskFromTable(task_position:int, table_name:str):
     with conn:
-        cursor.execute(f"""DELETE FROM {table_name}
-            WHERE posicao = {task_position};""")
+        cursor.execute(f"""DELETE FROM {table_name} 
+            WHERE position = {task_position};""")
+        
+        cursor.execute(f"""UPDATE {table_name}
+            SET position = position-1 
+            WHERE position > {task_position};""")
 
 
 def invertTaskStatus(task_position:int, table_name:str):
     with conn:
         cursor.execute(f"""UPDATE {table_name}
             SET done = NOT done
-            WHERE posicao = {task_position};""")
+            WHERE position = {task_position};""")
 
 def tableExists(table_name:str):
     cursor.execute(f"""SELECT name FROM sqlite_master

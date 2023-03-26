@@ -58,11 +58,8 @@ class TodoCLI(cmd.Cmd):
         db.createTable(list_name)
         self.do_lists(list_name)   
 
-    def do_delete(self, list_position):
+    def do_delete(self, list_name):
         """Deletes a TODO list"""
-        if not self.hasSelectedList():
-            self.printSelectError()
-
         list_name = list_name.split()[0]
 
         if not db.tableExists(list_name):
@@ -106,7 +103,7 @@ class TodoCLI(cmd.Cmd):
             self.printSelectError()
 
         db.invertTaskStatus(position, self.selected_list)
-        
+
         self.do_show(None)
 
     def do_update(self, args):
@@ -119,7 +116,6 @@ class TodoCLI(cmd.Cmd):
     def do_help(self, arg):
         """Available commands"""
         if arg:
-            # Obter a mensagem de ajuda padrão para o comando
             doc = getattr(self, "do_" + arg).__doc__
             return doc + '\n\nDescrição:\n\tAdiciona uma saudação ao nome especificado'
         else:
@@ -139,7 +135,7 @@ class TodoCLI(cmd.Cmd):
         
         return False
     
-    def printSelectError():
+    def printSelectError(self):
         print("[ERROR] You must select a list before!")
     
 if __name__ == '__main__':
