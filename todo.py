@@ -38,18 +38,41 @@ class TodoCLI(cmd.Cmd):
         self.selected_list = list_name
         print(f"Selected list {list_name}!")
 
-    def do_show(self, arg):
+    def do_show(self, category):
         if not self.hasSelectedList():
             self.printSelectError()
             return
         
-        todos = db.getAllRows(self.selected_list)
+        if category:
+            category = split(category)[0]
+            todos = db.getRowsFromCategory(category[0], self.selected_list)
+        else:
+            todos = db.getAllRows(self.selected_list)
+
+        table = Table(show_header=True, header_style="bold cyan")
+        table.add_column("#", style="dim", width=4, justify="center")
+        table.add_column("Todo", min_width=20, justify="center")
+        table.add_column("Category", min_width=12, justify="center")
+        table.add_column("Created At", min_width=12, justify="center")
+        table.add_column("Done At", min_width=12, justify="center")
+        table.add_column("Done", min_width=6, justify="center")
+
         for todo in todos:
-            print(todo.position, todo.name)
+            is_done_str = '✅' if todo.done == True else '❌'
+            done_date_str = "-" if todo.done_date == None else todo.done_date[:-7]
+            created_date_str = todo.created_date[:-7]
+
+            table.add_row(str(todo.position),
+                        todo.name, 
+                        todo.category, 
+                        created_date_str,
+                        done_date_str, 
+                        is_done_str)
+        self.console.print(table)
         
     def do_create(self, list_name):
         """Add a new TODO list"""
-        list_name = list_name.split()[0]
+        list_name = split(list_name)[0]
 
         if db.tableExists(list_name):
             print("List already exists!")
@@ -60,7 +83,7 @@ class TodoCLI(cmd.Cmd):
 
     def do_delete(self, list_name):
         """Deletes a TODO list"""
-        list_name = list_name.split()[0]
+        list_name = split(list_name)[0]
 
         if not db.tableExists(list_name):
             print("List does not exists!")
