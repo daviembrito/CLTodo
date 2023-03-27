@@ -2,9 +2,9 @@ import cmd
 from rich.table import Table
 from rich.console import Console
 from task import Task
-#from database import getTablesNames, createTable, tableExists, deleteTable, addTaskToTable, getAllRows, removeTaskFromTable, 
 import database as db
 from shlex import split
+from datetime import datetime
 
 class TodoCLI(cmd.Cmd):
     def __init__(self):
@@ -103,7 +103,8 @@ class TodoCLI(cmd.Cmd):
             self.printSelectError()
             return
 
-        db.invertTaskStatus(position, self.selected_list)
+        done_date = datetime.now().strftime("%d/%m/%Y, %H:%M:%S.%f")
+        db.invertTaskStatus(position, done_date, self.selected_list)
 
         self.do_show(None)
 
