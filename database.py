@@ -6,8 +6,8 @@ cursor = conn.cursor()
 
 def getTablesNames():
     cursor.execute("""SELECT name FROM sqlite_master 
-        WHERE type = 'table' 
-        AND name != 'sqlite_sequence';""")
+            WHERE type = 'table' 
+            AND name != 'sqlite_sequence';""")
     
     tables = cursor.fetchall()
     if not tables:
@@ -17,7 +17,19 @@ def getTablesNames():
     return tables_list
 
 def getAllRows(table_name:str):
-    cursor.execute(f"SELECT * FROM {table_name} ORDER BY position")
+    cursor.execute(f"""SELECT * FROM {table_name}
+            ORDER BY position""")
+    rows = cursor.fetchall()
+
+    tasks = []
+    for row in rows:
+        tasks.append(Task(*row))
+    return tasks
+
+def getRowsFromCategory(category:str, table_name:str):
+    cursor.execute(f"""SELECT * FROM {table_name}
+            WHERE category = '{category}'
+            ORDER BY position""")
     rows = cursor.fetchall()
 
     tasks = []
@@ -48,13 +60,21 @@ def addTaskToTable(task:Task, table_name:str):
             FALSE);""")
         
 def removeTaskFromTable(task_position:int, table_name:str):
-    with conn:
+    try:
+        conn.execute("BEGIN TRANSACTION;")
+
         cursor.execute(f"""DELETE FROM {table_name} 
             WHERE position = {task_position};""")
         
         cursor.execute(f"""UPDATE {table_name}
             SET position = position-1 
             WHERE position > {task_position};""")
+    
+        conn.commit()
+        
+    except sqlite3.Error as error:
+        conn.rollback()
+        print("[ERRO] ", error)
 
 def changeTaskPosition(old_position:int, new_position:int, table_name:str):
     try:
@@ -89,9 +109,6 @@ def changeTaskPosition(old_position:int, new_position:int, table_name:str):
 
 def invertTaskStatus(task_position:int, done_date:str, table_name:str):
     with conn:
-        #cursor.execute(f"""UPDATE {table_name}
-        #    SET done = NOT done
-        #    WHERE position = {task_position};""")
         cursor.execute(f"""UPDATE {table_name}
             SET done_date = 
             CASE 
