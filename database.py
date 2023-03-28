@@ -1,5 +1,5 @@
 import sqlite3
-from task import Task
+from todo import Todo
 
 conn = sqlite3.connect("todos.db")
 cursor = conn.cursor()
@@ -21,10 +21,10 @@ def getAllRows(table_name:str):
             ORDER BY position""")
     rows = cursor.fetchall()
 
-    tasks = []
+    todos = []
     for row in rows:
-        tasks.append(Task(*row))
-    return tasks
+        todos.append(Todo(*row))
+    return todos
 
 def getRowsFromCategory(category:str, table_name:str):
     cursor.execute(f"""SELECT * FROM {table_name}
@@ -34,7 +34,7 @@ def getRowsFromCategory(category:str, table_name:str):
 
     tasks = []
     for row in rows:
-        tasks.append(Task(*row))
+        tasks.append(Todo(*row))
     return tasks
 
 def createTable(table_name:str):
@@ -49,26 +49,26 @@ def createTable(table_name:str):
 def deleteTable(table_name:str):
     cursor.execute(f"DROP TABLE {table_name}")
 
-def addTaskToTable(task:Task, table_name:str):
+def addTaskToTable(todo:Todo, table_name:str):
     with conn:
         cursor.execute(f"""INSERT INTO {table_name}
             (position, todo, category, created_date, done) 
             VALUES ((SELECT IFNULL(MAX(position), 0) + 1 FROM {table_name}), 
-            '{task.name}', 
-            '{task.category}', 
-            '{task.created_date}', 
+            '{todo.name}', 
+            '{todo.category}', 
+            '{todo.created_date}', 
             FALSE);""")
         
-def removeTaskFromTable(task_position:int, table_name:str):
+def removeTaskFromTable(todo_position:int, table_name:str):
     try:
         conn.execute("BEGIN TRANSACTION;")
 
         cursor.execute(f"""DELETE FROM {table_name} 
-            WHERE position = {task_position};""")
+            WHERE position = {todo_position};""")
         
         cursor.execute(f"""UPDATE {table_name}
             SET position = position-1 
-            WHERE position > {task_position};""")
+            WHERE position > {todo_position};""")
     
         conn.commit()
         
@@ -105,9 +105,9 @@ def changeTaskPosition(old_position:int, new_position:int, table_name:str):
     
     except sqlite3.Error as error:
         conn.rollback()
-        print("[ERRO] ", error)
+        print("[ERROR] ", error)
 
-def invertTaskStatus(task_position:int, done_date:str, table_name:str):
+def invertTaskStatus(todo_position:int, done_date:str, table_name:str):
     with conn:
         cursor.execute(f"""UPDATE {table_name}
             SET done_date = 
@@ -115,7 +115,7 @@ def invertTaskStatus(task_position:int, done_date:str, table_name:str):
             WHEN done = TRUE THEN NULL ELSE '{done_date}'
             END, 
             done = NOT done
-            WHERE position = {task_position};""")
+            WHERE position = {todo_position};""")
 
 def tableExists(table_name:str):
     cursor.execute(f"""SELECT name FROM sqlite_master
