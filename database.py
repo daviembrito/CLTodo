@@ -37,6 +37,13 @@ def getRowsFromCategory(category:str, table_name:str):
         tasks.append(Todo(*row))
     return tasks
 
+def getMaxPosition(table_name:str):
+    cursor.execute(f"""SELECT MAX(position) 
+            FROM {table_name};""")
+    
+    max_position = cursor.fetchone()[0]
+    return max_position
+
 def createTable(table_name:str):
     cursor.execute(f"""CREATE TABLE IF NOT EXISTS {table_name} (
             position INTEGER NOT NULL,
