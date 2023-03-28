@@ -12,7 +12,7 @@ class Todo():
     @classmethod
     def create(cls, name:str, category:str):
         position = -1
-        created_date = datetime.now().strftime("%d/%m/%Y, %H:%M:%S.%f")
+        created_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S.%f")
         done = False
         done_date = None
         return cls(position, name, category, created_date, done_date, done)
