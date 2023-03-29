@@ -1,3 +1,9 @@
+'''
+CLTodo - Command Line Todos
+Coded by: github.com/daviembrito
+Version: 0.1
+'''
+
 import cmd
 from rich.table import Table
 from rich.console import Console
