@@ -4,8 +4,11 @@ Command Line Todos list manager in Python
 ## **Installation**
 ```git clone https://github.com/daviembrito/CLTodo.git```
 
-## **Usage**
 ```cd CLTodo```
+
+```pip install -r requirements.txt```
+
+## **Usage**
 
 ```python CLTodo.py```
 
