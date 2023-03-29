@@ -51,7 +51,7 @@ class TodoCLI(cmd.Cmd):
         
         if category:
             category = split(category)[0]
-            todos = db.getRowsFromCategory(category[0], self.selected_list)
+            todos = db.getRowsFromCategory(category, self.selected_list)
         else:
             todos = db.getAllRows(self.selected_list)
 
