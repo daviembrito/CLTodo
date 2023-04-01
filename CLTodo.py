@@ -1,7 +1,7 @@
 '''
 CLTodo - Command Line Todos
 Coded by: github.com/daviembrito
-Version: 0.1
+Version: 0.1.1
 '''
 
 import cmd
@@ -34,7 +34,7 @@ class TodoCLI(cmd.Cmd):
         lists = db.getTablesNames()
 
         if lists == ["No list found!"]:
-            self.printErrorMessage(lists[0])
+            self.printError(lists[0])
             return
 
         for list in lists:
