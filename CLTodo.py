@@ -163,6 +163,7 @@ class TodoCLI(cmd.Cmd):
         done <position>         Change the status of the todo to done or undone
         change <pos> <new_pos>  Change a todo's position
         quit                    Quit the program"""
+        
         print(hello)
         
     def default(self, line):
