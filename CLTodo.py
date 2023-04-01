@@ -1,7 +1,7 @@
 '''
 CLTodo - Command Line Todos
 Coded by: github.com/daviembrito
-Version: 0.1.1
+Version: 0.1.2
 '''
 
 import cmd
@@ -51,22 +51,21 @@ class TodoCLI(cmd.Cmd):
 
         self.printMessage(f'Selected list "{list_name}"!')
 
-    def do_show(self, category):
+    def do_show(self, arg):
         """Shows the list"""
         if not self.hasSelectedList():
             return
         
-        if category:
-            category = split(category)[0]
-            todos = db.getRowsFromCategory(category, self.selected_list)
+        if arg:
+            arg = split(arg)[0]
+            if arg in ["done", "undone"]:
+                todos = db.getRowsFromStatus(arg, self.selected_list)
+            else:
+                todos = db.getRowsFromCategory(arg, self.selected_list)
         else:
             todos = db.getAllRows(self.selected_list)
 
-        table = self.createTable()
-
-        for todo in todos:
-            self.createRow(todo, table)
-
+        table = self.createTable(todos)
         self.console.print(table)
         
     def do_create(self, list_name):
@@ -200,14 +199,18 @@ class TodoCLI(cmd.Cmd):
         self.printError("You must select a list before!")
         return False
     
-    def createTable(self):
+    def createTable(self, todos):
         table = Table(show_header=True, header_style="bold cyan")
+
         table.add_column("#", style="dim", width=4, justify="center")
         table.add_column("Todo", min_width=20, justify="center")
         table.add_column("Category", min_width=12, justify="center")
         table.add_column("Created At", min_width=12, justify="center")
         table.add_column("Done At", min_width=12, justify="center")
         table.add_column("Done", width=4, justify="center")
+
+        for todo in todos:
+            self.createRow(todo, table)
 
         return table
     
