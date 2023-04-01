@@ -47,12 +47,13 @@ class TodoCLI(cmd.Cmd):
             return 
         
         self.selected_list = list_name
-        self.printMessage(f"Selected list {list_name}!")
+        self.prompt = f"{list_name}> "
+
+        self.printMessage(f'Selected list "{list_name}"!')
 
     def do_show(self, category):
         """Shows the list"""
         if not self.hasSelectedList():
-            self.printError("You must select a list before!")
             return
         
         if category:
@@ -70,6 +71,10 @@ class TodoCLI(cmd.Cmd):
         
     def do_create(self, list_name):
         """Add a new TODO list"""
+        if self.notEnoughArgs(list_name, 1):
+            self.printError("You must provide a name!")
+            return
+
         list_name = split(list_name)[0]
 
         if db.tableExists(list_name):
@@ -81,6 +86,10 @@ class TodoCLI(cmd.Cmd):
 
     def do_delete(self, list_name):
         """Deletes a TODO list"""
+        if self.notEnoughArgs(list_name, 1):
+            self.printError("You must provide a list name!")
+            return
+        
         list_name = split(list_name)[0]
 
         if not db.tableExists(list_name):
@@ -97,8 +106,10 @@ class TodoCLI(cmd.Cmd):
     def do_add(self, args):
         """Adds a TODO to the list"""
         if not self.hasSelectedList():
-            self.printError("You must select a list before!")
             return
+        
+        if self.notEnoughArgs(args, 2):
+            self.printError("You must provide a name and category!")
 
         args = split(args)
         todo, category = args[0], args[1]
@@ -111,8 +122,10 @@ class TodoCLI(cmd.Cmd):
     def do_remove(self, position):
         """Removes a TODO from the list"""
         if not self.hasSelectedList():
-            self.printError("You must select a list before!")
             return
+        
+        if self.notEnoughArgs(position, 1):
+            self.printError("You must provide a position!")
         
         position = split(position)[0]
         db.removeTaskFromTable(position, self.selected_list)
@@ -122,7 +135,10 @@ class TodoCLI(cmd.Cmd):
     def do_done(self, position):
         """Turns a TODO to done"""
         if not self.hasSelectedList():
-            self.printError("You must select a list before!")
+            return
+        
+        if self.notEnoughArgs(position, 1):
+            self.printError("You must provide a position!")
             return
 
         done_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S.%f")
@@ -133,7 +149,10 @@ class TodoCLI(cmd.Cmd):
     def do_change(self, args):
         """Change a todo position"""
         if not self.hasSelectedList():
-            self.printError("You must select a list before!")
+            return
+        
+        if self.notEnoughArgs(args, 2):
+            self.printError("You must provide a old and new positions")
             return
 
         args = split(args)
@@ -163,7 +182,7 @@ class TodoCLI(cmd.Cmd):
         done <position>         Change the status of the todo to done or undone
         change <pos> <new_pos>  Change a todo's position
         quit                    Quit the program"""
-        
+
         print(hello)
         
     def default(self, line):
@@ -178,6 +197,7 @@ class TodoCLI(cmd.Cmd):
         if self.selected_list:
             return True
         
+        self.printError("You must select a list before!")
         return False
     
     def createTable(self):
@@ -202,12 +222,18 @@ class TodoCLI(cmd.Cmd):
                     created_date_str,
                     done_date_str, 
                     is_done_str)
+        
+    def notEnoughArgs(self, args, numberOfArgs):
+        if len(args) < numberOfArgs:
+            return True
+        
+        return False
     
     def printMessage(self, msg):
-        self.console.print(f"[OK] {msg}", style="bold cyan")
+        self.console.print(f'[OK] {msg}', style="bold cyan")
 
     def printError(self, msg):
-        self.console.print(f"[ERROR] {msg}", style="bold red")
+        self.console.print(f'[ERROR] {msg}', style="bold red")
     
 if __name__ == '__main__':
     Console().print("CLTodo", style="bold cyan")
