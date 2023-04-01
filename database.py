@@ -4,6 +4,12 @@ from todo import Todo
 conn = sqlite3.connect("todos.db")
 cursor = conn.cursor()
 
+def createTodos(rows):
+    todos = []
+    for row in rows:
+        todos.append(Todo(*row))
+    return todos
+
 def getTablesNames():
     cursor.execute("""SELECT name FROM sqlite_master 
             WHERE type = 'table' 
@@ -21,21 +27,24 @@ def getAllRows(table_name:str):
             ORDER BY position""")
     rows = cursor.fetchall()
 
-    todos = []
-    for row in rows:
-        todos.append(Todo(*row))
-    return todos
+    return createTodos(rows)
 
 def getRowsFromCategory(category:str, table_name:str):
     cursor.execute(f"""SELECT * FROM {table_name}
             WHERE category = '{category}'
-            ORDER BY position""")
+            ORDER BY position;""")
     rows = cursor.fetchall()
+    
+    return createTodos(rows)
 
-    tasks = []
-    for row in rows:
-        tasks.append(Todo(*row))
-    return tasks
+def getRowsFromStatus(isDone:str, table_name:str):
+    isDone = "TRUE" if isDone == "done" else "FALSE"
+    cursor.execute(f"""SELECT * FROM {table_name}
+            WHERE done = {isDone}
+            ORDER BY position;""")
+    rows = cursor.fetchall()
+    
+    return createTodos(rows)
 
 def getMaxPosition(table_name:str):
     cursor.execute(f"""SELECT MAX(position) 
