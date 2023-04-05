@@ -7,6 +7,7 @@ Version: 0.1.2
 import cmd
 from rich.table import Table
 from rich.console import Console
+from rich.text import Text
 from todo import Todo
 import database as db
 from shlex import split
@@ -207,7 +208,7 @@ class TodoCLI(cmd.Cmd):
         table.add_column("Category", min_width=12, justify="center")
         table.add_column("Created At", min_width=12, justify="center")
         table.add_column("Done At", min_width=12, justify="center")
-        table.add_column("Done", width=4, justify="center")
+        table.add_column("Done", width=5, justify="center")
 
         for todo in todos:
             self.createRow(todo, table)
@@ -215,7 +216,7 @@ class TodoCLI(cmd.Cmd):
         return table
     
     def createRow(self, todo, table):
-        is_done_str = '√' if todo.done == True else 'X'
+        is_done_str = Text("√", style="bold green") if todo.done == True else Text("X", style="bold red")
         done_date_str = "-" if todo.done_date == None else todo.done_date[:-7]
         created_date_str = todo.created_date[:-7]
 
