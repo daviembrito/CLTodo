@@ -46,6 +46,13 @@ def getRowsFromStatus(isDone:str, table_name:str):
     
     return createTodos(rows)
 
+def getRowsWithOrder(column:str, table_name:str):
+    cursor.execute(f"""SELECT * FROM {table_name}
+            ORDER BY {column};""")
+    rows = cursor.fetchall()
+    
+    return createTodos(rows)
+
 def getMaxPosition(table_name:str):
     cursor.execute(f"""SELECT MAX(position) 
             FROM {table_name};""")
