@@ -20,8 +20,6 @@ class TodoCLI(cmd.Cmd):
         
         self.console = Console()
         self.prompt = '> '
-        self.doc_header = 'Comandos disponíveis:'
-        self.undoc_header = 'Comandos não documentados:'
         self.aliases = {
             "exit" : self.do_quit,
             "q" : self.do_quit,
@@ -77,8 +75,15 @@ class TodoCLI(cmd.Cmd):
             return
         
         if self.notEnoughArgs(column, 1):
-            self.printError("You must provide a column name! ()")
+            self.printError("You must provide a column name! (position, todo, category, created, doneat, done)")
             return
+        
+        column = split(column)[0]
+        column = self.filterColumnName(column)
+
+        todos = db.getRowsWithOrder(column, self.selected_list)
+        table = self.createTable(todos)
+        self.console.print(table)
 
     # List manipulation methods
         
@@ -207,9 +212,6 @@ class TodoCLI(cmd.Cmd):
         else:
             self.do_help(arg)
 
-    def onecmd(self, line):
-        return super().onecmd(line.lower())
-    
     # Helper methods
 
     def hasSelectedList(self):
@@ -245,6 +247,15 @@ class TodoCLI(cmd.Cmd):
                     created_date_str,
                     done_date_str, 
                     is_done_str)
+        
+    def filterColumnName(self, column):
+        if column in ["position", "todo", "category", "done"]:
+            return column
+        elif column == "created":
+            return "created_date"
+        elif column == "doneat":
+            return "done_date"
+        return "position"
         
     def notEnoughArgs(self, args, numberOfArgs):
         if len(args) < numberOfArgs:
