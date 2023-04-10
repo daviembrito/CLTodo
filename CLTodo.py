@@ -1,7 +1,7 @@
 '''
 CLTodo - Command Line Todos
 Coded by: github.com/daviembrito
-Version: 0.1.2
+Version: 0.2.0
 '''
 
 import cmd
@@ -29,6 +29,8 @@ class TodoCLI(cmd.Cmd):
             "list" : self.do_lists,
             "tables" : self.do_lists
         }
+
+    # List visualization methods
 
     def do_lists(self, args):
         """Lists all available TODO lists"""
@@ -68,6 +70,17 @@ class TodoCLI(cmd.Cmd):
 
         table = self.createTable(todos)
         self.console.print(table)
+
+    def do_order(self, column):
+        """Order the list by a column"""
+        if not self.hasSelectedList():
+            return
+        
+        if self.notEnoughArgs(column, 1):
+            self.printError("You must provide a column name! ()")
+            return
+
+    # List manipulation methods
         
     def do_create(self, list_name):
         """Add a new TODO list"""
@@ -156,15 +169,16 @@ class TodoCLI(cmd.Cmd):
             return
 
         args = split(args)
-        old_position, new_position = args[0], args[1]
+        old_position, new_position = int(args[0]), int(args[1])
 
-        if int(new_position) > db.getMaxPosition(self.selected_list):
+        if new_position > db.getMaxPosition(self.selected_list):
             self.printError("New position is out of range!")
             return
 
         db.changeTaskPosition(old_position, new_position, self.selected_list)
         self.do_show(None)
 
+    # Other methods
     
     def do_quit(self, arg):
         return True
@@ -192,6 +206,11 @@ class TodoCLI(cmd.Cmd):
             return self.aliases[cmd](arg)
         else:
             self.do_help(arg)
+
+    def onecmd(self, line):
+        return super().onecmd(line.lower())
+    
+    # Helper methods
 
     def hasSelectedList(self):
         if self.selected_list:
