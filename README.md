@@ -43,6 +43,10 @@ Command Line Todos list manager in Python
                 <td>None, [Category]</td>
             </tr>
             <tr>
+                <td>order</td>
+                <td>Column</td>
+            </tr>
+            <tr>
                 <td>add</td>
                 <td>Todo, Category</td>
             </tr>
@@ -89,6 +93,9 @@ Selects a list to interact with
 ### **show ```[```category```]```**
 Shows the whole selected list or just a category
 
+### **order ```<```column```>```**
+Orders the list by a given column. Options are "position", "todo", "category", "created", "doneat" and "done"
+
 ### **add ```<```todo```>``` ```<```category```>```**
 Adds a new Todo with the specified informations
 
@@ -112,12 +119,16 @@ Displays a help message
 ## **Examples**
 <p></p>
 
-![Creating list and todo](https://cdn.discordapp.com/attachments/400108474748370946/1090440511455768708/image.png)
+![Creating list and todo](https://cdn.discordapp.com/attachments/400108474748370946/1095208504438034483/image.png)
 
 <p></p>
 
-![Removing todo](https://cdn.discordapp.com/attachments/400108474748370946/1090440769602584607/image.png)
+![Removing todo](https://cdn.discordapp.com/attachments/400108474748370946/1095208739847557140/image.png)
 
 <p></p>
 
-![Show with category](https://cdn.discordapp.com/attachments/400108474748370946/1090443090029985832/image.png)
+![Show with category](https://cdn.discordapp.com/attachments/400108474748370946/1095209213225091112/image.png)
+
+<p></p>
+
+![Order command](https://cdn.discordapp.com/attachments/400108474748370946/1095209647289409627/image.png)
